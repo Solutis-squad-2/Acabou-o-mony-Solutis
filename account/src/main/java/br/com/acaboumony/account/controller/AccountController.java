@@ -1,22 +1,33 @@
 package br.com.acaboumony.account.controller;
 
 import br.com.acaboumony.account.model.dto.AccountDTO;
+import br.com.acaboumony.account.model.dto.ConfirmacaoCodigoDTO;
 import br.com.acaboumony.account.model.dto.GetAccountDTO;
+import br.com.acaboumony.account.model.dto.LoginAccountDTO;
+import br.com.acaboumony.account.model.entity.Account;
 import br.com.acaboumony.account.service.AccountService;
+import br.com.acaboumony.account.service.CodigoService;
+import br.com.acaboumony.account.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Random;
 import java.util.UUID;
 
 @RestController
@@ -25,6 +36,70 @@ public class AccountController {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private CodigoService codigoService;
+
+    @Autowired
+    public AuthenticationManager authenticationManager;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginAccountDTO login) {
+        UsernamePasswordAuthenticationToken user =
+                new UsernamePasswordAuthenticationToken(login.email(), login.password());
+        Authentication authentication = this.authenticationManager.authenticate(user);
+        var userAuth = (Account) authentication.getPrincipal();
+
+
+        String codigoVerificacao = String.format("%06d", new Random().nextInt(1000000));
+
+        System.out.println(codigoVerificacao);
+        codigoService.salvarCodigoParaUsuario(userAuth.getEmail(), codigoVerificacao);
+
+
+        ConfirmacaoCodigoDTO message = new ConfirmacaoCodigoDTO(userAuth.getEmail(), codigoVerificacao);
+
+
+        rabbitTemplate.convertAndSend("Queue.send.emails", message);
+
+        return ResponseEntity.ok("Código de verificação enviado para o seu e-mail.");
+    }
+    @PostMapping("/confirmar-codigo")
+    public ResponseEntity<?> confirmarCodigo(@RequestBody ConfirmacaoCodigoDTO confirmacao) {
+        // Buscar o código armazenado no Redis para o e-mail fornecido
+        String codigoArmazenado = codigoService.obterCodigoParaUsuario(confirmacao.email());
+
+        if (codigoArmazenado != null && codigoArmazenado.equals(confirmacao.codigo())) {
+            GetAccountDTO g =  accountService.findAccount(confirmacao.email());
+            Account userAuth = new Account(g);
+            String token = tokenService.gerarToken(userAuth);
+
+            codigoService.removerCodigoParaUsuario(confirmacao.email());
+
+            return ResponseEntity.ok(token);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Código de verificação incorreto.");
+        }
+    }
+
+    /*@PostMapping("/login")
+    public String login(@RequestBody LoginAccountDTO login){
+        UsernamePasswordAuthenticationToken user =
+        new UsernamePasswordAuthenticationToken(login.email(),login.password());
+
+        Authentication authentication = this.authenticationManager.authenticate(user);
+
+        var userAuth = (Account) authentication.getPrincipal();
+        String token = tokenService.gerarToken(userAuth);
+
+        return token;
+    }*/
 
     @GetMapping("/{email}")
     @Operation(summary = "Detalhar uma conta", description = "Retorna os detalhes de uma conta específica.")
@@ -48,7 +123,6 @@ public class AccountController {
         var accounts = accountService.listAccount(paginacao);
         return ResponseEntity.ok(accounts);
     }
-
     @PostMapping("/register")
     @Operation(summary = "Cadastrar uma nova conta", description = "Cria uma nova conta com os dados fornecidos.")
     @ApiResponses(value = {
