@@ -1,9 +1,6 @@
 package br.com.acaboumony.account.controller;
 
-import br.com.acaboumony.account.model.dto.AccountDTO;
-import br.com.acaboumony.account.model.dto.ConfirmacaoCodigoDTO;
-import br.com.acaboumony.account.model.dto.GetAccountDTO;
-import br.com.acaboumony.account.model.dto.LoginAccountDTO;
+import br.com.acaboumony.account.model.dto.*;
 import br.com.acaboumony.account.model.entity.Account;
 import br.com.acaboumony.account.service.AccountService;
 import br.com.acaboumony.account.service.CodigoService;
@@ -56,35 +53,29 @@ public class AccountController {
         Authentication authentication = this.authenticationManager.authenticate(user);
         var userAuth = (Account) authentication.getPrincipal();
 
-
         String codigoVerificacao = String.format("%06d", new Random().nextInt(1000000));
 
-        System.out.println(codigoVerificacao);
+        //System.out.println(codigoVerificacao);
         codigoService.salvarCodigoParaUsuario(userAuth.getEmail(), codigoVerificacao);
 
-
         ConfirmacaoCodigoDTO message = new ConfirmacaoCodigoDTO(userAuth.getEmail(), codigoVerificacao);
-
-
         rabbitTemplate.convertAndSend("Queue.send.emails", message);
-
         return ResponseEntity.ok("Código de verificação enviado para o seu e-mail.");
     }
     @PostMapping("/confirmar-codigo")
-    public ResponseEntity<?> confirmarCodigo(@RequestBody ConfirmacaoCodigoDTO confirmacao) {
-        // Buscar o código armazenado no Redis para o e-mail fornecido
-        String codigoArmazenado = codigoService.obterCodigoParaUsuario(confirmacao.email());
+    public ResponseEntity<?> confirmarCodigo(@RequestBody String confirmacao) {
+        String email = codigoService.obterCodigoParaUsuario(confirmacao);
 
-        if (codigoArmazenado != null && codigoArmazenado.equals(confirmacao.codigo())) {
-            GetAccountDTO g =  accountService.findAccount(confirmacao.email());
+        if (email != null ) {
+            GetAccountDTO g =  accountService.findAccount(email);
             Account userAuth = new Account(g);
             String token = tokenService.gerarToken(userAuth);
 
-            codigoService.removerCodigoParaUsuario(confirmacao.email());
+            codigoService.removerCodigoParaUsuario(email);
 
             return ResponseEntity.ok(token);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Código de verificação incorreto.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Código de verificação incorreto ou expirou.");
         }
     }
 
@@ -123,6 +114,7 @@ public class AccountController {
         var accounts = accountService.listAccount(paginacao);
         return ResponseEntity.ok(accounts);
     }
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
     @Operation(summary = "Cadastrar uma nova conta", description = "Cria uma nova conta com os dados fornecidos.")
     @ApiResponses(value = {

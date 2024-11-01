@@ -19,6 +19,7 @@ public class TokenService {
                 .withIssuer("2FA")
                 .withSubject(login.getUsername())
                 .withClaim("uuid", login.getUuid().toString())
+                //.withClaim("email", login.getEmail())
                     .withExpiresAt(Date.from(LocalDateTime.now()
                             .plusMinutes(10)
                             .toInstant(ZoneOffset.of("-03:00"))))
@@ -30,4 +31,10 @@ public class TokenService {
                 .withIssuer("2FA")
                 .build().verify(token).getSubject();
     }
+
+   /* public String getEmail(String token) {
+        return JWT.require(Algorithm.HMAC256("squad2"))
+                .withIssuer("2FA")
+                .build().verify(token).getClaim("email").asString();
+    }*/
 }

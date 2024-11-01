@@ -19,7 +19,7 @@ public class CodigoService {
 
     public void salvarCodigoParaUsuario(String email, String codigo) {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        ops.set(email, codigo, 5, TimeUnit.MINUTES);
+        ops.set(codigo, email,  5, TimeUnit.MINUTES);
     }
 
     public boolean verificarCodigo(String email, String codigo) {
@@ -37,5 +37,8 @@ public class CodigoService {
 
     public void removerCodigoParaUsuario(String email) {
         redisTemplate.delete(email);
+    }
+    public boolean codigoExiste(String codigo) {
+        return redisTemplate.hasKey(codigo);
     }
 }
