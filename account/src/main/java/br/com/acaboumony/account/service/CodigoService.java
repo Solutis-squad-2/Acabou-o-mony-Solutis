@@ -22,15 +22,6 @@ public class CodigoService {
         ops.set(codigo, email,  5, TimeUnit.MINUTES);
     }
 
-    public boolean verificarCodigo(String email, String codigo) {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        String codigoSalvo = ops.get(email);
-        if (codigo.equals(codigoSalvo)) {
-            redisTemplate.delete(email);
-            return true;
-        }
-        return false;
-    }
     public String obterCodigoParaUsuario(String email) {
         return redisTemplate.opsForValue().get(email);
     }

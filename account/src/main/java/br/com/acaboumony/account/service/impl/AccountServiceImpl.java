@@ -1,6 +1,8 @@
 package br.com.acaboumony.account.service.impl;
 
 import br.com.acaboumony.account.exception.AccountException;
+import br.com.acaboumony.account.exception.ConflictException;
+import br.com.acaboumony.account.exception.NotFoundException;
 import br.com.acaboumony.account.model.dto.AccountDTO;
 import br.com.acaboumony.account.model.dto.GetAccountDTO;
 import br.com.acaboumony.account.model.entity.Account;
@@ -26,21 +28,35 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account createAccount(AccountDTO accountDTO) {
+        if(accountRepository.findByEmail(accountDTO.email()).isPresent()){
+            throw new ConflictException("Email já existe na nossa base de dados.");
+        }
+        if(accountRepository.findByCpf(accountDTO.cpf()).isPresent()){
+            throw new ConflictException("CPF já registrado!");
+        }
         Account account = new Account(accountDTO);
         account.setSenha(passwordEncoder.encode(accountDTO.senha()));
         try {
             return accountRepository.save(account);
         }catch (Exception e){
-            throw new AccountException("Erro ao cadastrar a conta: " + e.getMessage());
+            throw new AccountException("Erro ao cadastrar a conta: "+ e.getMessage());
         }
-
     }
 
     @Override
     public GetAccountDTO findAccount(String email) {
         Account account = existsAccount(email);
-        GetAccountDTO g = new GetAccountDTO(account);
-        return g;
+        return new GetAccountDTO(account);
+    }
+    @Override
+    public GetAccountDTO findAccountTeste(String email) {
+        Optional<Account> account = accountRepository.findByEmail(email);
+
+        if(account.isEmpty()){
+            throw new NotFoundException("Este email: "+email+" Não foi encontrado no" +
+                    " nosso banco de dados");
+        }
+        return new GetAccountDTO(account.get());
     }
 
     @Override
@@ -89,17 +105,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Account existsAccount(String email){
-        return accountRepository.findByEmail(email).orElseThrow(
-                () -> {
-                    return new EntityNotFoundException("Este email: "+email+" Não foi encontrado no" +
-                            " nosso banco de dados");
-                }
-        );
+        Optional<Account> account = accountRepository.findByEmail(email);
+        if(account.isEmpty()){
+            throw new NotFoundException("Este email: "+email+" Não foi encontrado no" +
+                    " nosso banco de dados");
+        }
+        return accountRepository.findByEmail(email).get();
 
     }
     private Account existsAccountWithUuid(UUID uuid) {
         return accountRepository.findByUuid(uuid).orElseThrow(() ->
-                new EntityNotFoundException("A conta com o UUID: " + uuid + " não foi encontrada no banco de dados.")
+                new NotFoundException("A conta com o UUID: " + uuid + " não foi encontrada no banco de dados.")
         );
     }
 }

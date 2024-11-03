@@ -18,6 +18,8 @@ public interface AccountService {
 
     void deleteAccount(UUID uuid);
 
+    GetAccountDTO findAccountTeste(String email);
+
     Page<GetAccountDTO> listAccount(Pageable pageable);
 
 }

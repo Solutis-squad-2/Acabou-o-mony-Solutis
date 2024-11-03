@@ -20,8 +20,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Random;
@@ -48,23 +50,30 @@ public class AccountController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginAccountDTO login) {
-        UsernamePasswordAuthenticationToken user =
-                new UsernamePasswordAuthenticationToken(login.email(), login.password());
-        Authentication authentication = this.authenticationManager.authenticate(user);
-        var userAuth = (Account) authentication.getPrincipal();
+        try {
+            GetAccountDTO accountDTO = accountService.findAccountTeste(login.email());
+            UsernamePasswordAuthenticationToken user =
+                    new UsernamePasswordAuthenticationToken(login.email(), login.password());
 
-        String codigoVerificacao = String.format("%06d", new Random().nextInt(1000000));
+            Authentication authentication = this.authenticationManager.authenticate(user);
 
-        //System.out.println(codigoVerificacao);
-        codigoService.salvarCodigoParaUsuario(userAuth.getEmail(), codigoVerificacao);
+            var userAuth = (Account) authentication.getPrincipal();
+            String codigoVerificacao = String.format("%06d", new Random().nextInt(1000000));
+            codigoService.salvarCodigoParaUsuario(userAuth.getEmail(), codigoVerificacao);
 
-        ConfirmacaoCodigoDTO message = new ConfirmacaoCodigoDTO(userAuth.getEmail(), codigoVerificacao);
-        rabbitTemplate.convertAndSend("Queue.send.emails", message);
-        return ResponseEntity.ok("Código de verificação enviado para o seu e-mail.");
+            ConfirmacaoCodigoDTO message = new ConfirmacaoCodigoDTO(userAuth.getEmail(), codigoVerificacao);
+            rabbitTemplate.convertAndSend("Queue.send.emails", message);
+
+            return ResponseEntity.ok("Código de verificação enviado para o seu e-mail.");
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("");
+        }
     }
+
+
     @PostMapping("/confirmar-codigo")
-    public ResponseEntity<?> confirmarCodigo(@RequestBody String confirmacao) {
-        String email = codigoService.obterCodigoParaUsuario(confirmacao);
+    public ResponseEntity<?> confirmarCodigo(@RequestBody CodigoDTO confirmacao) {
+        String email = codigoService.obterCodigoParaUsuario(confirmacao.codigo());
 
         if (email != null ) {
             GetAccountDTO g =  accountService.findAccount(email);
