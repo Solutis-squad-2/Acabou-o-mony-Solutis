@@ -1,14 +1,13 @@
 package br.com.acaboumony.payment.model.dto;
 
-import br.com.acaboumony.payment.model.enums.FormaDePagamento;
 import br.com.acaboumony.payment.model.enums.PaymentStatus;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record PaymentResponseMessageDTO(
-        String orderId,
-        BigDecimal valor,
-        FormaDePagamento formaDePagamento,
+        UUID paymentId,
+        LocalDateTime paymentDate,
         PaymentStatus paymentStatus
 ) {
 }

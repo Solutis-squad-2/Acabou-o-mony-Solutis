@@ -1,7 +1,6 @@
 package br.com.acaboumony.payment.service;
 
-import br.com.acaboumony.payment.config.RabbitMQConfig;
-import br.com.acaboumony.payment.model.enums.FormaDePagamento;
+import br.com.acaboumony.payment.amqp.RabbitMQConfig;
 import br.com.acaboumony.payment.model.enums.PaymentStatus;
 import br.com.acaboumony.payment.model.dto.PaymentRequestMessageDTO;
 import br.com.acaboumony.payment.model.dto.PaymentResponseMessageDTO;
@@ -12,8 +11,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class PaymentService {
@@ -33,19 +32,23 @@ public class PaymentService {
         payment.setOrderId(requestMessage.orderId());
         payment.setValor(requestMessage.valor());
         payment.setCpf(requestMessage.cpf());
+        payment.setTransactionDate(requestMessage.dataCadastro());
         payment.setPaymentDate(LocalDateTime.now());
 
-        // Lógica específica para cada tipo de pagamento
+        // Lógica de validação do pagamento
         boolean isPaymentSuccessful = switch (requestMessage.formaDePagamento()) {
             case CREDITO -> validateCreditCard(requestMessage);
             case DEBITO -> validateDebitCard(requestMessage);
             case PIX -> validatePix(requestMessage);
         };
 
-        payment.setPaymentStatus(isPaymentSuccessful ? PaymentStatus.CONFIRMADO : PaymentStatus.CANCELADO);
+        // Definindo o status do pagamento
+        PaymentStatus status = isPaymentSuccessful ? PaymentStatus.CONFIRMADO : PaymentStatus.CANCELADO;
+        payment.setPaymentStatus(status);
 
         paymentRepository.save(payment);
-        sendPaymentStatus(requestMessage.orderId(), payment.getPaymentStatus(), requestMessage.valor(), requestMessage.formaDePagamento());
+
+        sendPaymentStatus(payment.getUuid(), payment.getPaymentDate(), status);
     }
 
     private boolean validateCreditCard(PaymentRequestMessageDTO requestMessage) {
@@ -63,8 +66,8 @@ public class PaymentService {
         return "1a1cd635-e894-477c-9ae0-c50b5c1bee53".equals(requestMessage.chavePix());
     }
 
-    public void sendPaymentStatus(String orderId, PaymentStatus paymentStatus, BigDecimal valor, FormaDePagamento formaDePagamento) {
-        PaymentResponseMessageDTO message = new PaymentResponseMessageDTO(orderId, valor, formaDePagamento, paymentStatus);
+    public void sendPaymentStatus(UUID paymentId, LocalDateTime paymentDate, PaymentStatus paymentStatus) {
+        PaymentResponseMessageDTO message = new PaymentResponseMessageDTO(paymentId, paymentDate, paymentStatus);
         rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, message);
     }
 }
