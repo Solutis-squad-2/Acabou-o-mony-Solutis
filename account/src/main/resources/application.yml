@@ -3,6 +3,6 @@ server:
   basePath: /**
   ssl:
     enabled: true
-    key-store: D:/Solutis exercicios/Acabou-o-mony - Copia/certificadossl/mycert.p12
+    key-store: D:\Solutis exercicios\Acabou-o-mony\certificadossl\mycert.p12
     key-store-password: 12345678
     key-store-type: PKCS12
