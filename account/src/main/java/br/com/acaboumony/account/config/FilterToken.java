@@ -61,6 +61,7 @@ public class FilterToken extends OncePerRequestFilter {
                     var account = accountOptional.get();
                     var authentication = new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    request.setAttribute("userId", account.getUuid());
                 } else {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                     return;

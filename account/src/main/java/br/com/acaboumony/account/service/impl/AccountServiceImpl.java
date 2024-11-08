@@ -4,6 +4,7 @@ import br.com.acaboumony.account.exception.AccountException;
 import br.com.acaboumony.account.exception.ConflictException;
 import br.com.acaboumony.account.exception.NotFoundException;
 import br.com.acaboumony.account.model.dto.AccountDTO;
+import br.com.acaboumony.account.model.dto.FindUUIDDto;
 import br.com.acaboumony.account.model.dto.GetAccountDTO;
 import br.com.acaboumony.account.model.entity.Account;
 import br.com.acaboumony.account.repository.AccountRepository;
@@ -48,6 +49,13 @@ public class AccountServiceImpl implements AccountService {
         Account account = existsAccount(email);
         return new GetAccountDTO(account);
     }
+
+    @Override
+    public FindUUIDDto findUuid(String email) {
+        Account account = existsAccount(email);
+        return new FindUUIDDto(account);
+    }
+
     @Override
     public GetAccountDTO findAccountTeste(String email) {
         Optional<Account> account = accountRepository.findByEmail(email);

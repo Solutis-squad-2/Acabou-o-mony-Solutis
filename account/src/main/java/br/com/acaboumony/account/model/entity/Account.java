@@ -2,6 +2,7 @@ package br.com.acaboumony.account.model.entity;
 
 import br.com.acaboumony.account.exception.AccountException;
 import br.com.acaboumony.account.model.dto.AccountDTO;
+import br.com.acaboumony.account.model.dto.FindUUIDDto;
 import br.com.acaboumony.account.model.dto.GetAccountDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -32,7 +33,7 @@ public class Account implements UserDetails {
 
     @Id
     @GeneratedValue
-    private UUID uuid = UUID.randomUUID();
+    private UUID uuid;
 
     @Column(nullable = false, unique = true)
     @NotBlank(message = "O email não pode estar em branco")
@@ -85,6 +86,8 @@ public class Account implements UserDetails {
         this.setNome(accountDTO.nome());
         this.setTelefone(accountDTO.telefone());
         this.setCpf(accountDTO.cpf());
+    }
+    public Account(FindUUIDDto accountDTO) {
     }
     public void patch(GetAccountDTO accountDTO){
         validateEmail(accountDTO.email());
