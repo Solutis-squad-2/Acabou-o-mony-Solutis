@@ -35,7 +35,6 @@ public class Account implements UserDetails {
     private UUID uuid = UUID.randomUUID();
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "O email não pode estar em branco")
     private String email;
 
     @Column(nullable = false)
@@ -53,10 +52,14 @@ public class Account implements UserDetails {
     private String cpf;
 
     private void validateEmail(String email) {
-        if (email == null || !Pattern.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$", email)) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new AccountException("O email não pode estar em branco");
+        }
+        if (!Pattern.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$", email)) {
             throw new AccountException("O formato do email está incorreto");
         }
     }
+
 
     private String formatarCpf(String cpf) {
         if (cpf != null && cpf.length() == 11) {
