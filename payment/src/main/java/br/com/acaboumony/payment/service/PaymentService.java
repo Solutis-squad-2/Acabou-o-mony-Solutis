@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 public class PaymentService {
@@ -29,7 +28,7 @@ public class PaymentService {
     @Transactional
     public void processPayment(PaymentRequestMessageDTO requestMessage) {
         Payment payment = new Payment();
-        payment.setOrderId(requestMessage.orderId());
+        payment.setOrderId(requestMessage.orderid());
         payment.setValor(requestMessage.valor());
         payment.setCpf(requestMessage.cpf());
         payment.setTransactionDate(requestMessage.dataCadastro());
@@ -48,7 +47,7 @@ public class PaymentService {
 
         paymentRepository.save(payment);
 
-        sendPaymentStatus(payment.getUuid(), payment.getPaymentDate(), status);
+        sendPaymentStatus(payment.getOrderId(), payment.getPaymentDate(), status);
     }
 
     private boolean validateCreditCard(PaymentRequestMessageDTO requestMessage) {
@@ -66,7 +65,7 @@ public class PaymentService {
         return "1a1cd635-e894-477c-9ae0-c50b5c1bee53".equals(requestMessage.chavePix());
     }
 
-    public void sendPaymentStatus(UUID paymentId, LocalDateTime paymentDate, PaymentStatus paymentStatus) {
+    public void sendPaymentStatus(Long paymentId, LocalDateTime paymentDate, PaymentStatus paymentStatus) {
         PaymentResponseMessageDTO message = new PaymentResponseMessageDTO(paymentId, paymentDate, paymentStatus);
         rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, message);
     }

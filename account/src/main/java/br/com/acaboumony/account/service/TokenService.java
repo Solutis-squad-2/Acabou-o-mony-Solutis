@@ -25,12 +25,12 @@ public class TokenService {
 
         return JWT.create()
                 .withIssuer("2FA")
-                .withSubject(login.getUsername()) // O nome de usuário no "sub"
-                .withClaim("uuid", uuid.uuid()) // Adiciona a claim 'uuid' com o valor correto
+                .withSubject(login.getUsername())
+                .withClaim("uuid", uuid.uuid())
                 .withExpiresAt(Date.from(LocalDateTime.now()
-                        .plusMinutes(10)
-                        .toInstant(ZoneOffset.of("-03:00")))) // Define a expiração do token
-                .sign(Algorithm.HMAC256("squad2")); // Assina o token com a chave secreta
+                        .plusMinutes(50)
+                        .toInstant(ZoneOffset.of("-03:00"))))
+                .sign(Algorithm.HMAC256("squad2"));
     }
 
     public String getSubject(String token) {

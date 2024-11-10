@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import pedidos.demo.model.FormaDePagamento;
 import pedidos.demo.model.Pedido;
-import pedidos.demo.model.StatusPagamento;
+import pedidos.demo.model.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,10 +27,10 @@ public class PedidosUserDTO {
     private BigDecimal valor;
     private String chavePix;
     private LocalDateTime dataCadastro;
-    private StatusPagamento statusPagamento = StatusPagamento.AGUARDANDO;
+    private PaymentStatus paymentStatus = PaymentStatus.AGUARDANDO;
     private LocalDateTime dataProcessamento;
 
-    public PedidosUserDTO(Long id, String nome, String cpf,String uuid, String email, String telefone, FormaDePagamento formaDePagamento, String numeroCartao, String codigoCartao, int parcelas, String descricaoPedido, BigDecimal valor, StatusPagamento statusPagamento, LocalDateTime dataCadastro) {
+    public PedidosUserDTO(Long id, String nome, String cpf, String uuid, String email, String telefone, FormaDePagamento formaDePagamento, String numeroCartao, String codigoCartao, int parcelas, String descricaoPedido, BigDecimal valor, PaymentStatus paymentStatus, LocalDateTime dataCadastro) {
         this.id = id;
         this.nome = nome;
         this.cpf = cpf;
@@ -45,7 +45,7 @@ public class PedidosUserDTO {
         this.valor = valor;
         //this.chavePix = chavePix;
         this.dataProcessamento = dataCadastro;
-        this.statusPagamento = statusPagamento;
+        this.paymentStatus = paymentStatus;
     }
 
     public PedidosUserDTO() {
@@ -66,7 +66,7 @@ public class PedidosUserDTO {
             this.descricaoPedido = pedido.getDescricaoPedido();
             this.valor = pedido.getValor();
             this.chavePix = getChavePix();
-            this.statusPagamento = pedido.getStatusPagamento();
+            this.paymentStatus = pedido.getPaymentStatus();
             this.dataCadastro = pedido.getDataCadastro();
 
 

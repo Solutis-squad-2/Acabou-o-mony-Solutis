@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pedidos.demo.dto.PaymentDTO;
 import pedidos.demo.dto.PedidosDTO;
 import pedidos.demo.dto.PedidosUserDTO;
 import pedidos.demo.service.PedidosService;
@@ -60,10 +61,10 @@ public class PedidosController {
         String usuarioEmail = tokenService.getEmailFromToken(token);
         PedidosUserDTO pedido = pedidosService.cadastrar(dto,usuarioEmail,usuarioId);
 
-/*
-        Message message = new Message (("Pedido criado com o id: " + pedido.getId()).getBytes());
-        rabbitTemplate.send("pedido.cadastro", message);
-*/
+
+        PaymentDTO message = new PaymentDTO(pedido);
+        rabbitTemplate.convertAndSend("pedido.cadastro", message);
+
 
         return ResponseEntity.ok(pedido);
     }

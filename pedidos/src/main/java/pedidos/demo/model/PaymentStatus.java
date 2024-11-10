@@ -1,7 +1,7 @@
 package pedidos.demo.model;
 
-public enum StatusPagamento {
+public enum PaymentStatus {
     AGUARDANDO,
     CONFIRMADO,
-    NEGADO
+    CANCELADO
 }

@@ -24,6 +24,8 @@ public class PedidoAMQPConfiguration {
                 .build();
         }
 
+
+
         //FILA DLQ PAGAMENTO
     @Bean
     public Queue criarFilaPaymentDLQ(){

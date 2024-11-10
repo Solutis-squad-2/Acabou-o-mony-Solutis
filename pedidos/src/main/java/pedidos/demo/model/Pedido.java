@@ -10,8 +10,9 @@ import org.hibernate.annotations.CreationTimestamp;
 
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @NoArgsConstructor
@@ -52,12 +53,13 @@ public abstract class Pedido {
     private BigDecimal valor;
 
     @Enumerated(EnumType.STRING)
-    private StatusPagamento statusPagamento;
+    private PaymentStatus paymentStatus;
 
     @CreationTimestamp
     private LocalDateTime dataCadastro;
 
     private LocalDateTime dataProcessamento = null;
+
 
 
     public Pedido(Long id, String nome, String cpf, FormaDePagamento formaDePagamento, String email, String telefone, String descricaoPedido, BigDecimal valor) {
@@ -69,7 +71,7 @@ public abstract class Pedido {
         this.telefone = telefone;
         this.descricaoPedido = descricaoPedido;
         this.valor = valor;
-        this.statusPagamento = StatusPagamento.AGUARDANDO;
+        this.paymentStatus = PaymentStatus.AGUARDANDO;
         this.dataCadastro = dataCadastro;
     }
 }

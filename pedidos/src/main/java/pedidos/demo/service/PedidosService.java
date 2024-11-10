@@ -1,21 +1,18 @@
 package pedidos.demo.service;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import pedidos.demo.dto.EmailDTO;
-import pedidos.demo.dto.PaymentDTO;
-import pedidos.demo.dto.PedidosDTO;
-import pedidos.demo.dto.PedidosUserDTO;
+import pedidos.demo.dto.*;
 import pedidos.demo.model.*;
+import pedidos.demo.repository.PedidoCreditoRepository;
 import pedidos.demo.repository.PedidosRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,6 +24,8 @@ public class PedidosService {
 
     @Autowired
     private PedidosRepository pedidosRepository;
+    @Autowired
+    private PedidoCreditoRepository creditoRepository;
 
 
     @Autowired
@@ -42,11 +41,16 @@ public class PedidosService {
 
     public PedidosUserDTO cadastrar(PedidosDTO dto,String email, String uuid) {
         Pedido pedido;
+        PedidoCredito credito = null;
 
 
         switch (dto.getFormaDePagamento()){
             case CREDITO:
                 pedido = new PedidoCredito(
+                        dto.getNumeroCartao(),
+                        dto.getCodigoCartao(),
+                        dto.getParcelas());
+                credito = new PedidoCredito(
                         dto.getNumeroCartao(),
                         dto.getCodigoCartao(),
                         dto.getParcelas());
@@ -65,11 +69,13 @@ public class PedidosService {
         }
 
         // Mapeia os demais campos
-
         modelMapper.map(dto, pedido);
         pedido = pedidosRepository.save(pedido);
         pedido.setEmail(email);
         pedido.setUuid(uuid);
+        pedido.setDataCadastro(LocalDateTime.now());
+        pedidosRepository.save(pedido);
+        enviarPedidoParaEmail(pedido);
 
         PedidosUserDTO respostaDTO = modelMapper.map(pedido, PedidosUserDTO.class);
 
@@ -100,25 +106,27 @@ public class PedidosService {
                 .map(pedido -> new PedidosDTO(pedido))
                 .collect(Collectors.toList());
     }
+    @Transactional
+    public ResponseEntity<PedidosDTO> atualizarRespostaPedido(ConfirmPaymentDTO dto) {
+        Optional<Pedido> pedidoOptional = pedidosRepository.findById(dto.getPaymentId());
 
-    public ResponseEntity<PedidosDTO> atualizarRespostaPedido(Long id, StatusPagamento status, LocalDateTime dataProcessamento){
-        Optional<Pedido> pedidoOptional = pedidosRepository.findById(id);
-
-        if(pedidoOptional.isPresent()){
+        if (pedidoOptional.isPresent()) {
             Pedido pedido = pedidoOptional.get();
 
-            pedido.setStatusPagamento(status);
-            pedido.setDataProcessamento(dataProcessamento);
+            pedido.setPaymentStatus(dto.getPaymentStatus());
+            pedido.setDataProcessamento(dto.getPaymentDate());
 
             Pedido pedidoAtualizado = pedidosRepository.save(pedido);
 
             PedidosDTO resposta = new PedidosDTO(pedidoAtualizado);
 
             return ResponseEntity.ok(resposta);
-        }else{
+        } else {
+            // Se o pedido não for encontrado, lança uma exceção
             throw new IllegalArgumentException("Pedido não encontrado!");
         }
     }
+
 
 //  ---------  CONVERSÃO E ENVIO PARA PAYMENT E EMAIL  ------------
 
@@ -139,10 +147,23 @@ public class PedidosService {
 
     }
 
-    public void enviarPedidoParaEmail(PedidosDTO pedido){
-        EmailDTO emailDTO = converterParaEmailDTO(pedido);
-
+    private void enviarPedidoParaEmailD(Pedido pedido){
+        EmailDTO emailDTO = new EmailDTO(pedido);
         rabbitTemplate.convertAndSend("pedido.email-notificacao", emailDTO);
+    }
+    private void enviarPedidoParaEmailC(Pedido pedido, PedidoCredito credito){
+        EmailDTO emailDTO = new EmailDTO(pedido, credito);
+        rabbitTemplate.convertAndSend("pedido.email-notificacao", emailDTO);
+    }
+    public void enviarPedidoParaEmail(Pedido pedido){
+        Optional<PedidoCredito> credito = creditoRepository.findById(pedido.getId());
+        EmailDTO emailDTO = new EmailDTO(pedido, credito.orElse(null));
+        rabbitTemplate.convertAndSend("pedido.email-notificacao", emailDTO);
+    }
+    public Pedido findPedido(Long id){
+        Optional<Pedido> pedido = pedidosRepository.findById(id);
+
+        return pedido.get();
     }
 
 }

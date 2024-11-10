@@ -23,7 +23,7 @@ public class Payment {
     @GeneratedValue
     private UUID uuid = UUID.randomUUID();
 
-    private String orderId;
+    private Long orderId;
 
     private BigDecimal valor;
 
