@@ -1,4 +1,4 @@
-package br.com.acaboumony.account;// src/test/java/br/com/acaboumony/account/model/entity/AccountEmailValidationTest.java
+package br.com.acaboumony.account; // src/test/java/br/com/acaboumony/account/model/entity/AccountEmailValidationTest.java
 
 import br.com.acaboumony.account.exception.AccountException;
 import br.com.acaboumony.account.model.dto.AccountDTO;
@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AccountEmailValidationTest {
 
 	@Test
-	void deveLancarExcecaoQuandoEmailForNulo() {
+	void ExceptionEmailIsNull() {
 		AccountDTO accountDTO = new AccountDTO(null, "senha123", "Nome Teste", "11987654321", "12345678909");
 
 		Exception exception = assertThrows(AccountException.class, () -> new Account(accountDTO));
@@ -20,7 +20,7 @@ class AccountEmailValidationTest {
 	}
 
 	@Test
-	void deveLancarExcecaoQuandoEmailForVazio() {
+	void ExceptionEmailIsEmpty() {
 		AccountDTO accountDTO = new AccountDTO("", "senha123", "Nome Teste", "11987654321", "12345678909");
 
 		Exception exception = assertThrows(AccountException.class, () -> new Account(accountDTO));
@@ -30,9 +30,9 @@ class AccountEmailValidationTest {
 	}
 
 	@Test
-	void deveLancarExcecaoQuandoEmailForInvalido() {
-		String emailInvalido = "email_invalido";
-		AccountDTO accountDTO = new AccountDTO(emailInvalido, "senha123", "Nome Teste", "11987654321", "12345678909");
+	void ExceptionEmailIsInvalid() {
+		String invalidEmail = "email_invalido";
+		AccountDTO accountDTO = new AccountDTO(invalidEmail, "senha123", "Nome Teste", "11987654321", "12345678909");
 
 		Exception exception = assertThrows(AccountException.class, () -> new Account(accountDTO));
 		System.out.println("Expected Exception Message for invalid email: " + exception.getMessage());
@@ -41,13 +41,13 @@ class AccountEmailValidationTest {
 	}
 
 	@Test
-	void deveAceitarEmailValido() {
-		String emailValido = "teste@domain.com";
-		AccountDTO accountDTO = new AccountDTO(emailValido, "senha123", "Nome Teste", "11987654321", "12345678909");
+	void AcceptValidEmail() {
+		String validEmail = "teste@domain.com";
+		AccountDTO accountDTO = new AccountDTO(validEmail, "senha123", "Nome Teste", "11987654321", "12345678909");
 
 		Account account = new Account(accountDTO);
 		System.out.println("Assigned Email: " + account.getEmail());
 
-		assertEquals(emailValido, account.getEmail());
+		assertEquals(validEmail, account.getEmail());
 	}
 }
