@@ -1,0 +1,7 @@
+server:
+  forward-headers-strategy: framework
+  basePath: /**
+  ssl:
+    key-store: D:\Solutis exercicios\Acabou-o-mony\certificadossl\mycert.p12
+    key-store-password: 12345678
+    key-store-type: PKCS12

@@ -2,12 +2,15 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="server" />
+        <module name="payment" />
         <module name="sendemail" />
+        <module name="demo" />
         <module name="account" />
         <module name="gateway" />
       </profile>
@@ -16,7 +19,9 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="account" options="-parameters" />
+      <module name="demo" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="payment" options="-parameters" />
       <module name="sendemail" options="-parameters" />
       <module name="server" options="-parameters" />
     </option>
