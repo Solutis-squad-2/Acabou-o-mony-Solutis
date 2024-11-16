@@ -5,8 +5,6 @@ import br.com.acaboumony.account.model.dto.AccountDTO;
 import br.com.acaboumony.account.model.dto.FindUUIDDto;
 import br.com.acaboumony.account.model.dto.GetAccountDTO;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,7 +34,6 @@ public class Account implements UserDetails {
     private UUID uuid;
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "O email não pode estar em branco")
     private String email;
 
     @Column(nullable = false)
@@ -53,57 +50,80 @@ public class Account implements UserDetails {
     @Size(max = 14, message = "O CPF deve conter no máximo 11 dígitos")
     private String cpf;
 
+    public Account(GetAccountDTO g) {
+    }
+
     private void validateEmail(String email) {
-        if (email == null || !Pattern.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$", email)) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new AccountException("O email não pode estar em branco");
+        }
+        if (!Pattern.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$", email)) {
             throw new AccountException("O formato do email está incorreto");
         }
     }
 
+    private void validateNome(String nome) {
+        if (nome == null || nome.trim().isEmpty()) {
+            throw new AccountException("O nome não pode estar em branco");
+        }
+    }
+
+    private void validateSenha(String senha) {
+        if (senha == null || senha.length() < 6) {
+            throw new AccountException("Senha deve conter pelo menos 6 caracteres");
+        }
+    }
+
     private String formatarCpf(String cpf) {
-        if (cpf != null && cpf.length() == 11) {
-            return cpf.replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
+        if (cpf == null) {
+            throw new AccountException("CPF inválido");
+        }
+        String cpfSomenteNumeros = cpf.replaceAll("\\D", ""); // Remove todos os caracteres não numéricos
+        if (cpfSomenteNumeros.length() == 11) {
+            return cpfSomenteNumeros.replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
         }
         throw new AccountException("CPF inválido");
     }
 
     private String formatarTelefone(String telefone) {
-        if (telefone != null && telefone.length() == 11) {
-            return telefone.replaceAll("(\\d{2})(\\d{5})(\\d{4})", "($1) $2-$3");
+        if (telefone == null) {
+            throw new AccountException("Telefone inválido");
+        }
+        String telefoneSomenteNumeros = telefone.replaceAll("\\D", "");
+        if (telefoneSomenteNumeros.length() == 11) {
+            return telefoneSomenteNumeros.replaceAll("(\\d{2})(\\d{5})(\\d{4})", "($1) $2-$3");
+        } else if (Pattern.matches("\\(\\d{2}\\) \\d{5}-\\d{4}", telefone)) {
+            return telefone;
         }
         throw new AccountException("Telefone inválido");
     }
 
-
     public Account(AccountDTO accountDTO) {
         validateEmail(accountDTO.email());
+        validateNome(accountDTO.nome());
+        validateSenha(accountDTO.senha());
         this.setEmail(accountDTO.email());
         this.setNome(accountDTO.nome());
         this.setTelefone(this.formatarTelefone(accountDTO.telefone()));
         this.setCpf(this.formatarCpf(accountDTO.cpf()));
-    }
-    public Account(GetAccountDTO accountDTO) {
-        this.setEmail(accountDTO.email());
-        this.setNome(accountDTO.nome());
-        this.setTelefone(accountDTO.telefone());
-        this.setCpf(accountDTO.cpf());
-    }
-    public Account(FindUUIDDto accountDTO) {
-    }
-    public void patch(GetAccountDTO accountDTO){
-        validateEmail(accountDTO.email());
-        ofNullable(accountDTO.email()).ifPresent(this::setEmail);
-        ofNullable(accountDTO.nome()).ifPresent(this::setNome);
-        ofNullable(accountDTO.telefone())
-                .map(this::formatarTelefone)
-                .ifPresent(this::setTelefone);
-
-        ofNullable(accountDTO.cpf())
-                .map(this::formatarCpf)
-                .ifPresent(this::setCpf);
+        this.setSenha(accountDTO.senha());
     }
 
-    public String getCodigo(String value){
-        return value;
+    public void patch(GetAccountDTO accountDTO) {
+        ofNullable(accountDTO.email()).ifPresent(email -> {
+            validateEmail(email);
+            this.setEmail(email);
+        });
+        ofNullable(accountDTO.nome()).ifPresent(nome -> {
+            validateNome(nome);
+            this.setNome(nome);
+        });
+        ofNullable(accountDTO.telefone()).ifPresent(telefone -> {
+            this.setTelefone(formatarTelefone(telefone));
+        });
+        ofNullable(accountDTO.cpf()).ifPresent(cpf -> {
+            this.setCpf(formatarCpf(cpf));
+        });
     }
 
     @Override
