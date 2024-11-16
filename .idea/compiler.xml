@@ -11,14 +11,19 @@
         <module name="payment" />
         <module name="pedidos" />
         <module name="sendemail" />
+        <module name="Account (1)" />
         <module name="demo" />
         <module name="account" />
         <module name="gateway" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="pedidos" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Account (1)" options="-parameters" />
       <module name="account" options="-parameters" />
       <module name="demo" options="-parameters" />
       <module name="gateway" options="-parameters" />

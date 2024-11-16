@@ -92,6 +92,7 @@ public class AccountController {
             GetAccountDTO g =  accountService.findAccount(email);
             Account userAuth = new Account(g);
             String token = tokenService.gerarToken(userAuth);
+            System.out.println(email);
 
             codigoService.removerCodigoParaUsuario(email);
 

@@ -50,7 +50,11 @@ public class Account implements UserDetails {
     @Size(max = 14, message = "O CPF deve conter no máximo 11 dígitos")
     private String cpf;
 
-    public Account(GetAccountDTO g) {
+    public Account(GetAccountDTO accountDTO) {
+        this.setEmail(accountDTO.email());
+        this.setNome(accountDTO.nome());
+        this.setTelefone(accountDTO.telefone());
+        this.setCpf(accountDTO.cpf());
     }
 
     private void validateEmail(String email) {
