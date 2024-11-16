@@ -22,8 +22,8 @@ public class CodigoService {
         ops.set(codigo, email,  5, TimeUnit.MINUTES);
     }
 
-    public String obterCodigoParaUsuario(String email) {
-        return redisTemplate.opsForValue().get(email);
+    public String recuperarEmail(String codigo) {
+        return redisTemplate.opsForValue().get(codigo);
     }
 
     public void removerCodigoParaUsuario(String email) {

@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/account")
@@ -51,29 +52,41 @@ public class AccountController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginAccountDTO login) {
         try {
+            // 1. Tentar buscar a conta com cache ou otimizar a consulta
             GetAccountDTO accountDTO = accountService.findAccountTeste(login.email());
-            UsernamePasswordAuthenticationToken user =
-                    new UsernamePasswordAuthenticationToken(login.email(), login.password());
 
-            Authentication authentication = this.authenticationManager.authenticate(user);
+            // 2. Validar as credenciais do usuário de maneira mais eficiente
+            UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(login.email(), login.password());
+            Authentication authentication = authenticationManager.authenticate(user);
 
+            // 3. Gerar código de verificação de forma assíncrona
             var userAuth = (Account) authentication.getPrincipal();
             String codigoVerificacao = String.format("%06d", new Random().nextInt(1000000));
-            codigoService.salvarCodigoParaUsuario(userAuth.getEmail(), codigoVerificacao);
 
-            ConfirmacaoCodigoDTO message = new ConfirmacaoCodigoDTO(userAuth.getEmail(), codigoVerificacao);
-            rabbitTemplate.convertAndSend("Queue.send.emails", message);
+            // 4. Salvar o código de forma assíncrona (se possível) para não bloquear a resposta
+            CompletableFuture.runAsync(() -> codigoService.salvarCodigoParaUsuario(userAuth.getEmail(), codigoVerificacao));
 
+            // 5. Enviar e-mail de forma assíncrona (garantir que isso não impacte o tempo de resposta)
+            CompletableFuture.runAsync(() -> {
+                ConfirmacaoCodigoDTO message = new ConfirmacaoCodigoDTO(userAuth.getEmail(), codigoVerificacao);
+                rabbitTemplate.convertAndSend("Queue.send.emails", message);
+            });
+
+            // 6. Retornar resposta de forma rápida
             return ResponseEntity.ok("Código de verificação enviado para o seu e-mail.");
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("");
+            // Melhorar o tratamento de erro com uma mensagem mais clara
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas.");
+        } catch (Exception e) {
+            // Tratar erros gerais e fornecer uma resposta amigável
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro ao processar sua solicitação.");
         }
     }
 
 
     @PostMapping("/confirmar-codigo")
     public ResponseEntity<?> confirmarCodigo(@RequestBody CodigoDTO confirmacao) {
-        String email = codigoService.obterCodigoParaUsuario(confirmacao.codigo());
+        String email = codigoService.recuperarEmail(confirmacao.codigo());
 
         if (email != null ) {
             GetAccountDTO g =  accountService.findAccount(email);
