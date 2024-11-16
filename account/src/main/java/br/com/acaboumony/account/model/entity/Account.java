@@ -2,6 +2,7 @@ package br.com.acaboumony.account.model.entity;
 
 import br.com.acaboumony.account.exception.AccountException;
 import br.com.acaboumony.account.model.dto.AccountDTO;
+import br.com.acaboumony.account.model.dto.FindUUIDDto;
 import br.com.acaboumony.account.model.dto.GetAccountDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -30,7 +31,7 @@ public class Account implements UserDetails {
 
     @Id
     @GeneratedValue
-    private UUID uuid = UUID.randomUUID();
+    private UUID uuid;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -100,7 +101,7 @@ public class Account implements UserDetails {
     public Account(AccountDTO accountDTO) {
         validateEmail(accountDTO.email());
         validateNome(accountDTO.nome());
-        validateSenha(accountDTO.senha()); // Valida a senha aqui
+        validateSenha(accountDTO.senha());
         this.setEmail(accountDTO.email());
         this.setNome(accountDTO.nome());
         this.setTelefone(this.formatarTelefone(accountDTO.telefone()));

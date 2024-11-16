@@ -8,6 +8,8 @@
         <option value="$PROJECT_DIR$/gateway/pom.xml" />
         <option value="$PROJECT_DIR$/server/pom.xml" />
         <option value="$PROJECT_DIR$/sendemail/pom.xml" />
+        <option value="$PROJECT_DIR$/payment/pom.xml" />
+        <option value="$PROJECT_DIR$/pedidos/pom.xml" />
       </list>
     </option>
   </component>
