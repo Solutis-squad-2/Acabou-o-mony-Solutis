@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="server" />
         <module name="payment" />
+        <module name="pedidos" />
         <module name="sendemail" />
         <module name="demo" />
         <module name="account" />
@@ -22,6 +23,7 @@
       <module name="demo" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="payment" options="-parameters" />
+      <module name="pedidos" options="-parameters" />
       <module name="sendemail" options="-parameters" />
       <module name="server" options="-parameters" />
     </option>
