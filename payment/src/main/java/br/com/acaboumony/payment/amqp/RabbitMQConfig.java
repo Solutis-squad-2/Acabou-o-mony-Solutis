@@ -16,10 +16,6 @@ public class RabbitMQConfig {
     // Nome da fila de pagamento que o serviço Order irá consumir
     public static final String QUEUE_NAME = "fila.confirmacao.payment";
 
-    @Bean
-    public Queue paymentQueue() {
-        return new Queue(QUEUE_NAME, false);
-    }
 
     @Bean
     public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {

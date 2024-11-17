@@ -15,37 +15,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class PedidoAMQPConfiguration {
 
-    //criação da fila
-    @Bean
-    public Queue criaFilaPayment(){
-        return QueueBuilder.nonDurable("pedido.cadastro")
-                .deadLetterExchange("")
-                .deadLetterRoutingKey("pedido.cadastro.dlq")
-                .build();
-        }
-
-
-
-        //FILA DLQ PAGAMENTO
-    @Bean
-    public Queue criarFilaPaymentDLQ(){
-        return QueueBuilder.nonDurable("pedido.cadastro.dlq").build();
-    }
-
-
-    @Bean
-    public Queue criaFilaEmail(){
-        return QueueBuilder.nonDurable("pedido.email-notificacao")
-                .deadLetterExchange("")
-                .deadLetterRoutingKey("pedido.email-notificacao.dlq")
-                .build();
-    }
-
-    //FILA DLQ PARA EMAIL
-    @Bean
-    public Queue criarFilaEmailDLQ(){
-        return QueueBuilder.nonDurable("pedido.email-notificacao.dlq").build();
-    }
 
 
     @Bean
