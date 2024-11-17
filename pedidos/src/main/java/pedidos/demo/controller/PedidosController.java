@@ -39,17 +39,6 @@ public class PedidosController {
         return ResponseEntity.ok(resultado);
     }
 
-    @PostMapping("/cpf")
-    public ResponseEntity<Optional<List<PedidosDTO>>> buscarPedidoPorCpf(@RequestBody Map<String, String> body){
-
-       Optional<List<PedidosDTO>> dtoList = pedidosService.buscaPorCPF(body.get("cpf"));
-
-        if(dtoList.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }else{
-            return ResponseEntity.ok(dtoList);
-        }
-    }
 
     @PostMapping("/cadastro")
     public ResponseEntity<PedidosUserDTO> cadastrar(@RequestBody PedidosDTO dto, HttpServletRequest request){

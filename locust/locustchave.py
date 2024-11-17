@@ -13,7 +13,7 @@ class MicroserviceUser(HttpUser):
     def test_new_path(self):
         # Dados JSON para o novo caminho
         json_data = {
-            "codigo": "778213"
+            "codigo": "004461"
         }
 
         # Envia a requisição POST para o endpoint

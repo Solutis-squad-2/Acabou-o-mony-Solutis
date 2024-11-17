@@ -9,7 +9,7 @@ class AccountTestUser(HttpUser):
     @task
     def get_account_list(self):
         headers = {
-            "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXNvbHV0aXM5QGdtYWlsLmNvbSIsImlzcyI6IjJGQSIsImV4cCI6MTczMTc4OTMzNiwidXVpZCI6IjYwNDYwNWE4LTc2YzUtNDkyZi05OTA5LWEwYWI4OWYxMmU1YiJ9.lVP6wU7ViZGQTXSsafesOtphoimHyTDsvQl8C9sfnRQ",  # Substitua com seu token
+            "Authorization": "Bearer ",  # Substitua com seu token
         }
         # Requisição GET para o endpoint /account/list
         response = self.client.get("/account/list", headers=headers)
