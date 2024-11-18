@@ -12,7 +12,7 @@ class PaymentTest(HttpUser):
 
     @task
     def get_pedido_by_id(self):
-        pedido_id = 71000  # Substitua pelo ID que deseja buscar
+        pedido_id = 74804  # Substitua pelo ID que deseja buscar
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.token}"

@@ -6,7 +6,7 @@ class PaymentTest(HttpUser):
             # Ignorar erro de verificação de certificado SSL
             self.client.verify = False
     # Insira o seu token de autorização aqui
-    token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXNvbHV0aXM5QGdtYWlsLmNvbSIsImlzcyI6IjJGQSIsImV4cCI6MTczMTg2Njc5OCwidXVpZCI6IjYwNDYwNWE4LTc2YzUtNDkyZi05OTA5LWEwYWI4OWYxMmU1YiJ9.DJpmllDPYN8s6Hbe1bAXi85mlqTEW4Ah8aB6iTPvT-Q"
+    token = ""
 
     @task
     def send_payment_request(self):
