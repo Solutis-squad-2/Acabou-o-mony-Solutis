@@ -101,6 +101,30 @@ locust -f nome-do-arquivo-com-script.py
 ```
 Isso iniciará a interface do Locust para testar a carga do sistema.
 
+## Resultados dos Testes de Carga
+Os resultados dos testes de carga realizados com o **Locust** podem ser acessados nos links abaixo:
+
+1. **Confirmação de Código**
+- [Visualizar Resultado](https://solutis-squad-2.github.io/Acabou-o-mony-Solutis/Resultados%20teste%20de%20carga/Solicita%C3%A7%C3%A3o%20de%20confirmar%20codigo.html)
+
+2. **Solicitação de Lista de Usuários**
+- [Visualizar Resultado](https://solutis-squad-2.github.io/Acabou-o-mony-Solutis/Resultados%20teste%20de%20carga/Solicita%C3%A7%C3%A3o%20de%20lista%20de%20usuarios.html)
+
+3. **Solicitação de Login**
+- [Visualizar Resultado](https://solutis-squad-2.github.io/Acabou-o-mony-Solutis/Resultados%20teste%20de%20carga/Solicita%C3%A7%C3%A3o%20de%20login.html)
+
+4. **Solicitação de Pedido**
+- [Visualizar Resultado](https://solutis-squad-2.github.io/Acabou-o-mony-Solutis/Resultados%20teste%20de%20carga/Solicita%C3%A7%C3%A3o%20de%20pedidos.html)
+
+5. **Solicitação de Registro**
+- [Visualizar Resultado](https://solutis-squad-2.github.io/Acabou-o-mony-Solutis/Resultados%20teste%20de%20carga/Solicita%C3%A7%C3%A3o%20de%20registro.html)
+
+6. **Solicitação de Todos os Pedidos**
+- [Visualizar Resultado](https://solutis-squad-2.github.io/Acabou-o-mony-Solutis/Resultados%20teste%20de%20carga/Solicita%C3%A7%C3%A3o%20de%20todos%20pedidos.html)
+
+7. **Teste de Pedido por ID**
+- [Visualizar Resultado](https://solutis-squad-2.github.io/Acabou-o-mony-Solutis/Resultados%20teste%20de%20carga/Solicita%C3%A7%C3%A3o%20pedidos%20por%20id.html)
+
 ## Desenvolvimento
 Durante o desenvolvimento, adotamos uma abordagem ágil e iterativa, com foco na entrega de funcionalidades de maneira contínua e eficiente. Os serviços foram cuidadosamente planejados e implementados para garantir que cada componente fosse modular, com o objetivo de facilitar a manutenção e a escalabilidade do sistema. A comunicação entre os microsserviços é feita de forma assíncrona, o que permite que as transações sejam processadas de maneira eficiente sem sobrecarregar os recursos do sistema.
 
