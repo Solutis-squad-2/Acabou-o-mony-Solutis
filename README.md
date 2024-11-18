@@ -129,7 +129,19 @@ Os resultados dos testes de carga realizados com o **Locust** podem ser acessado
 Durante o desenvolvimento, adotamos uma abordagem ágil e iterativa, com foco na entrega de funcionalidades de maneira contínua e eficiente. Os serviços foram cuidadosamente planejados e implementados para garantir que cada componente fosse modular, com o objetivo de facilitar a manutenção e a escalabilidade do sistema. A comunicação entre os microsserviços é feita de forma assíncrona, o que permite que as transações sejam processadas de maneira eficiente sem sobrecarregar os recursos do sistema.
 
 ### Membros da Equipe
-- **Pedro Rocha** - https://github.com/Pedro-E-S-R
-- **Oscar de Brito** - https://github.com/OscarDeBrito
-- **Fábio Macedo** - https://github.com/fabio-macedo
-- **Gabriel Pedro** - https://github.com/devGabrielPedro
+- **Pedro Rocha** - [GitHub](https://github.com/Pedro-E-S-R)
+    - Implementação do Account Service e Email Service.
+    - Configuração de segurança, incluindo autenticação e autorização de usuários.
+    - Configuração do Gateway e Server para a comunicação entre microsserviços.
+  
+- **Oscar de Brito** - [GitHub](https://github.com/OscarDeBrito)
+    - Execução e monitoramento dos testes de carga usando Locust.
+    - Análise de desempenho e otimização dos serviços sob alta demanda.
+
+- **Fábio Macedo** - [GitHub](https://github.com/fabio-macedo)
+    - Desenvolvimento do Order Service, responsável pela criação, consulta e gestão de pedidos.
+    - Integração do fluxo de pedidos com o serviço de pagamento.
+
+- **Gabriel Pedro** - [GitHub](https://github.com/devGabrielPedro)
+  - Implementação do Payment Service, com lógica de processamento de pagamentos.
+  - Implementação de fluxos de validação e segurança relacionados ao processamento de pagamentos.
